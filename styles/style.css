@@ -2,4 +2,23 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.container {
+  max-width: 1128px;
+  margin: auto;
+}
+
+.header {
+  width: 100%;
+  background-color: blueviolet;
+  max-height: 200px;
+}
+
+.users {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 250px);
+  -moz-column-gap: 20px;
+       column-gap: 20px;
+  align-items: center;
 }/*# sourceMappingURL=style.css.map */
