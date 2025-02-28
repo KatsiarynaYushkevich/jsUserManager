@@ -1,5 +1,5 @@
 const usersArray = [];
-const addBtn = document.querySelector('.add_btn');
+const addBtn = document.querySelector(".add_btn");
 const modalContent = document.querySelector(".modal_content");
 const modal = document.querySelector(".modal");
 
@@ -48,7 +48,7 @@ class RegularUser extends User {
     super(id, name, email);
     this.role = "user";
     this.postsNumber = 0;
-    this.password = 'password';
+    this.password = "password";
     this.icon = "../img/user_icon.svg";
   }
 
@@ -71,32 +71,31 @@ class GuestUser extends User {
   }
 }
 
-function createUser(name, email, status) { 
+function createUser(name, email, status) {
+  let newUser;
   switch (status) {
     case "admin":
-        const newAdminUser = new AdminUser(usersArray.length+1, name, email, status);
-        newAdminUser.renderRow();
-        usersArray.push(newAdminUser);
+      newUser = new AdminUser(usersArray.length + 1, name, email, status);
+      newUser.renderRow();
       break;
     case "guest":
-        const newGuestUser = new GuestUser(usersArray.length+1, name, email, status);
-        newGuestUser.renderRow();
-        usersArray.push(newGuestUser);
+      newUser = new GuestUser(usersArray.length + 1, name, email, status);
+      newUser.renderRow();
       break;
     case "user":
-        const newUser = new RegularUser(usersArray.length+1, name, email, status);
-        usersArray.push(newUser);
+      newUser = new RegularUser(usersArray.length + 1, name, email, status);
+      newUser.renderRow();
       break;
+      usersArray.push(newUser);
   }
- 
 }
 
 function changeUserInfo(user) {
-    modal.style.display = "block";
+  modal.style.display = "block";
 }
 
-addBtn.addEventListener('click', (event)=>{
-  modal.style.display = 'block';
+addBtn.addEventListener("click", (event) => {
+  modal.style.display = "block";
   modalContent.innerHTML = `
   <form class='add_user_form'>
   <p>Данные нового пользователя:</p>
@@ -113,20 +112,69 @@ addBtn.addEventListener('click', (event)=>{
   </div>
   </form>
   `;
-})
+});
 
 modalContent.addEventListener("click", (event) => {
-  if (event.target.classList.contains('return_btn')) {
-    modal.style.display = 'none';
-  } 
-});
-
-modalContent.addEventListener('submit', (event) => {
-  if (event.target.classList.contains('add_user_form')) {
-    event.preventDefault(); 
-    const userName = document.querySelector('#name').value.trim();
-    const userEmail = document.querySelector('#email').value.trim();
-    const userStatus = document.querySelector('#role').value.trim();
-    createUser(userName, userEmail, userStatus);
+  if (event.target.classList.contains("return_btn")) {
+    modal.style.display = "none";
   }
 });
+
+modalContent.addEventListener("submit", (event) => {
+  if (event.target.classList.contains("add_user_form")) {
+    event.preventDefault();
+    const userName = document.querySelector("#name").value.trim();
+    const userEmail = document.querySelector("#email").value.trim();
+    const userStatus = document.querySelector("#role").value.trim();
+    createUser(userName, userEmail, userStatus);
+    saveUsersInfo(usersArray);
+  }
+});
+
+function saveUsersInfo(usersArray) {
+  localStorage.clear();
+  usersArray.forEach((user) => {
+    localStorage.setItem(user.id, JSON.stringify(user));
+  });
+}
+
+function getUsersInfo(usersArray) {
+  parseUsers(usersArray);
+  showUsersInfo(usersArray);
+}
+
+function parseUsers(usersArray){
+  for (let i = 1; i <= localStorage.length; i++) {
+    const user = JSON.parse(localStorage.getItem(i));
+    let userInstance;
+    switch (user.role) {
+      case "admin":
+        userInstance = new AdminUser(user.id, user.name, user.email, user.role);
+        usersArray.push(userInstance);
+        break;
+      case "guest":
+        userInstance = new GuestUser(user.id, user.name, user.email, user.role);
+        usersArray.push(userInstance);
+        break;
+      case "user":
+        userInstance = new RegularUser(
+          user.id,
+          user.name,
+          user.email,
+          user.role
+        );
+        usersArray.push(userInstance);
+        break;
+    }
+  }
+}
+
+function showUsersInfo(usersArray) {
+  usersArray.forEach((user) => {
+    user.renderRow();
+  });
+}
+
+getUsersInfo(usersArray);
+console.log(localStorage);
+console.log(usersArray);
