@@ -92,9 +92,11 @@ function createUser(name, email, role) {
 }
 
 function addNewUser(newUser){   
-  newUser.renderRow();
+  // newUser.renderRow();
   usersArray.push(newUser);
   saveUsersInfo(usersArray);
+  usersArray = [];
+  parseUsers(usersArray);
 }
 
 addBtn.addEventListener("click", (event) => {
@@ -103,9 +105,9 @@ addBtn.addEventListener("click", (event) => {
 
 function showModal(i){
   modal[i].style.display = "block";
-  modalContent[i].innerHTML = `
-  <form class='add_user_form'>
-  <p>Информация пользователя:</p>
+  const form = document.createElement('form');
+  form.classList.add('add_user_form');
+  form.innerHTML = `<p>Информация пользователя:</p>
   <input id='name' type='text' placeholder='Имя пользователя' required>
   <input id='email' type='text' placeholder='Email пользователя' required>
   <select id='role' required>
@@ -116,14 +118,30 @@ function showModal(i){
   <div>
   <input type='submit' value='Сохранить'>
   <input type='button' class='return_btn' value='Назад'>
-  </div>
-  </form>
-  `;
+  </div>`;
+modalContent[i].appendChild(form);
+  // modalContent[i].innerHTML = `
+  // <form class='add_user_form'>
+  // <p>Информация пользователя:</p>
+  // <input id='name' type='text' placeholder='Имя пользователя' required>
+  // <input id='email' type='text' placeholder='Email пользователя' required>
+  // <select id='role' required>
+  // <option label='Администратор'>admin</option>
+  // <option label='Пользователь'>user</option>
+  // <option label='Гость'>guest</option> 
+  // </select>
+  // <div>
+  // <input type='submit' value='Сохранить'>
+  // <input type='button' class='return_btn' value='Назад'>
+  // </div>
+  // </form>
+  // `;
 }
 
 modalContent[0].addEventListener("click", (event) => {
   if (event.target.classList.contains("return_btn")) {
     modal[0].style.display = "none";
+    modalContent[0].innerHTML = '';
   }
 });
 
@@ -148,7 +166,7 @@ function saveUsersInfo(usersArray) {
 
 function parseUsers(usersArray){
   usersBlock.innerHTML = ` `;
-  for (let i = 0; i < localStorage.length; i++) {
+  for (let i = 0; i <= localStorage.length; i++) {
     const user = JSON.parse(localStorage.getItem(i+1));
     if(user){
     let userInstance;
@@ -192,7 +210,6 @@ usersBlock.addEventListener('click', (event) => {
   }
   else if(event.target.classList.contains("delete_btn")){
     const userId = event.target.dataset.id;     
-    console.log(userId);
     deleteUser(userId);
   }
 });
@@ -200,12 +217,9 @@ usersBlock.addEventListener('click', (event) => {
 function deleteUser(userId) {
   usersArray = usersArray.filter((user) => user.id !== +userId); 
   saveUsersInfo(usersArray);
-  console.log(usersArray);
   usersArray = [];
   parseUsers(usersArray);
 }
-
-
 
 modalContent[1].addEventListener('submit', (event) => {
   event.preventDefault();
@@ -230,6 +244,7 @@ modalContent[1].addEventListener('submit', (event) => {
 modalContent[1].addEventListener("click", (event) => {
   if (event.target.classList.contains("return_btn")) {
     modal[1].style.display = "none";
+    modalContent[1].innerHTML = '';
   }
 });
 
