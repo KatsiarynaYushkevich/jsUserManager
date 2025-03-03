@@ -2,7 +2,8 @@ let usersArray = [];
 const addBtn = document.querySelector(".add_btn");
 const modalContent = Array.from(document.querySelectorAll(".modal_content"));
 const modal = Array.from(document.querySelectorAll(".modal"));
-const usersBlock = document.querySelector('.users');
+const usersBlock = document.querySelector(".users");
+const searchInput = document.querySelector("#search");
 
 class User {
   constructor(id, name, email) {
@@ -11,17 +12,17 @@ class User {
     this.email = email;
     this.role = "role";
     this.container = document.querySelector(".users");
-  
+
     this.icon = "";
   }
 
   renderRow() {
     this.container.innerHTML += `
-        <div class='user_card'>
+        <div class='user_card ${this.getRoleClass()}' >
          <div class='user_info'>
            <img src='${this.icon}'>
           <div class='user_text'>
-           <p>Имя: ${this.name}</p>
+           <p id='name'>Имя: ${this.name}</p>
            <p>Роль: ${this.role}</p>
            <p>email: ${this.email}</p>
           </div>
@@ -33,6 +34,10 @@ class User {
         </div>
         `;
   }
+
+  getRoleClass() {
+    return ''; 
+  }
 }
 
 class AdminUser extends User {
@@ -42,6 +47,9 @@ class AdminUser extends User {
     this.icon = "../img/admin_icon.svg";
   }
 
+  getRoleClass() {
+    return 'admin_card'; 
+  }
   removeUser(userId) {}
 }
 
@@ -63,6 +71,10 @@ class RegularUser extends User {
       ? (this.password = newPassword)
       : console.log("новый и старый пароли совпадают");
   }
+
+  getRoleClass() {
+    return 'regular_card'; 
+  }
 }
 
 class GuestUser extends User {
@@ -71,42 +83,116 @@ class GuestUser extends User {
     this.role = "guest";
     this.icon = "../img/guest_icon.svg";
   }
-}
 
-function createUser(name, email, role) {
-  let newUser;
-  switch (role) {
-    case "admin":
-      newUser = new AdminUser(usersArray.length + 1, name, email, role);
-      addNewUser(newUser);
-      break;
-    case "guest":
-      newUser = new GuestUser(usersArray.length + 1, name, email, role);
-      addNewUser(newUser);
-      break;
-    case "user":
-      newUser = new RegularUser(usersArray.length + 1, name, email, role);   
-      addNewUser(newUser);
-      break;
+  getRoleClass() {
+    return 'guest_card';
   }
 }
 
-function addNewUser(newUser){   
-  // newUser.renderRow();
+searchInput.oninput = function () {
+  const input = this.value.trim();
+  const results = document.querySelectorAll("#name");
+  if (input) {
+    results.forEach((result) => {
+      const userCard = result.parentNode.parentNode.parentNode;
+      console.log(input, result.innerText);
+      (result.innerText.search(RegExp(input,'gi')) == -1) ? userCard.classList.add("hide") : userCard.classList.remove("hide");
+      }
+    );
+  } else {
+    results.forEach((result) => {
+      const userCard = result.parentNode.parentNode.parentNode;
+      userCard.classList.remove("hide");
+    });
+  }
+};
+
+function createUser(valuesArray) {
+  let newUser;
+  switch (valuesArray[2]) {
+    case "admin":
+      newUser = new AdminUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+      break;
+    case "guest":
+      newUser = new GuestUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+      break;
+    case "user":
+      newUser = new RegularUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+      break;
+  }
+  addNewUser.bind(this)(newUser);
+}
+
+function addNewUser(newUser) {
   usersArray.push(newUser);
+  updateUsers();
+}
+
+function changeUserInfo(user, valuesArray) {
+  user.name = valuesArray[0];
+  user.email = valuesArray[1];
+  user.role = valuesArray[2];
+
+  updateUsers.bind(this)();
+}
+
+function getNewInfo() {
+  return [
+    document.querySelector("#name").value,
+    document.querySelector("#email").value,
+    document.querySelector("#role").value,
+  ];
+}
+
+function deleteUser(userId) {
+  usersArray = usersArray.filter((user) => user.id !== +userId);
+  updateUsers.bind(this)();
+}
+
+function updateUsers() {
   saveUsersInfo(usersArray);
   usersArray = [];
   parseUsers(usersArray);
 }
 
-addBtn.addEventListener("click", (event) => {
-  showModal(0);
-});
+function saveUsersInfo(usersArray) {
+  localStorage.clear();
+  usersArray.forEach((user) => {
+    localStorage.setItem(user.id, JSON.stringify(user));
+  });
+}
 
-function showModal(i){
+function parseUsers(usersArray) {
+  usersBlock.innerHTML = ` `;
+  for (let i = 0; i <= localStorage.length; i++) {
+    const user = JSON.parse(localStorage.getItem(i + 1));
+    if (user) {
+      let userInstance;
+      switch (user.role) {
+        case "admin":
+          userInstance = new AdminUser(usersArray.length + 1, user.name, user.email, user.role);
+          userInstance.renderRow();
+          usersArray.push(userInstance);
+          break;
+        case "guest":
+          userInstance = new GuestUser(usersArray.length + 1, user.name, user.email, user.role);
+          userInstance.renderRow();
+          usersArray.push(userInstance);
+          break;
+        case "user":
+          userInstance = new RegularUser(usersArray.length + 1, user.name, user.email, user.role);
+          userInstance.renderRow();
+          usersArray.push(userInstance);
+          break;
+      }
+    }
+  }
+}
+
+function showModal(i) {
   modal[i].style.display = "block";
-  const form = document.createElement('form');
-  form.classList.add('add_user_form');
+  const form = document.createElement("form");
+  form.classList.add("add_user_form");
   form.innerHTML = `<p>Информация пользователя:</p>
   <input id='name' type='text' placeholder='Имя пользователя' required>
   <input id='email' type='text' placeholder='Email пользователя' required>
@@ -119,144 +205,66 @@ function showModal(i){
   <input type='submit' value='Сохранить'>
   <input type='button' class='return_btn' value='Назад'>
   </div>`;
-modalContent[i].appendChild(form);
-  // modalContent[i].innerHTML = `
-  // <form class='add_user_form'>
-  // <p>Информация пользователя:</p>
-  // <input id='name' type='text' placeholder='Имя пользователя' required>
-  // <input id='email' type='text' placeholder='Email пользователя' required>
-  // <select id='role' required>
-  // <option label='Администратор'>admin</option>
-  // <option label='Пользователь'>user</option>
-  // <option label='Гость'>guest</option> 
-  // </select>
-  // <div>
-  // <input type='submit' value='Сохранить'>
-  // <input type='button' class='return_btn' value='Назад'>
-  // </div>
-  // </form>
-  // `;
+  modalContent[i].appendChild(form);
 }
 
 modalContent[0].addEventListener("click", (event) => {
   if (event.target.classList.contains("return_btn")) {
     modal[0].style.display = "none";
-    modalContent[0].innerHTML = '';
+    modalContent[0].innerHTML = "";
   }
 });
 
-modalContent[0].addEventListener("submit", (event) => { 
+modalContent[0].addEventListener("submit", (event) => {
   if (event.target.classList.contains("add_user_form")) {
-    event.preventDefault();   
-    const userName =  document.querySelector("#name").value;
-    const userEmail =  document.querySelector("#email").value;
-    const userRole = document.querySelector("#role").value;
-      createUser(userName, userEmail, userRole);
-    }; 
-     event.target.reset();
+    event.preventDefault();
+    const userInfo = getNewInfo();
+    createUser(userInfo);
   }
-);
+  event.target.reset();
+});
 
-function saveUsersInfo(usersArray) {
-  localStorage.clear();
-  usersArray.forEach((user) => {
-    localStorage.setItem(user.id, JSON.stringify(user));
-  });
-}
+addBtn.addEventListener("click", (event) => {
+  showModal(0);
+});
 
-function parseUsers(usersArray){
-  usersBlock.innerHTML = ` `;
-  for (let i = 0; i <= localStorage.length; i++) {
-    const user = JSON.parse(localStorage.getItem(i+1));
-    if(user){
-    let userInstance;
-    switch (user.role) {
-      case "admin":
-        userInstance = new AdminUser(usersArray.length+1, user.name, user.email, user.role);
-        userInstance.renderRow();
-        usersArray.push(userInstance);
-        break;
-      case "guest":
-        userInstance = new GuestUser(usersArray.length+1, user.name, user.email, user.role);
-        userInstance.renderRow();
-        usersArray.push(userInstance);
-        break;
-      case "user":
-        userInstance = new RegularUser(usersArray.length+1, user.name, user.email,user.role);
-        userInstance.renderRow();
-        usersArray.push(userInstance);
-        break;
-    }
-  }
-  }
-}
+usersBlock.addEventListener("click", (event) => {
+  if (event.target.classList.contains("change_btn")) {
+    showModal(1);
 
-usersBlock.addEventListener('click', (event) => {
-  if (event.target.classList.contains("change_btn")) {     
-    showModal(1);  
-
-    const userId = event.target.dataset.id;     
-    const user = usersArray.find((user) => user.id == userId);  /// тут повтор
+    const userId = event.target.dataset.id;
+    const user = usersArray.find((user) => user.id == userId);
 
     document.querySelector(".add_user_form").dataset.id = userId;
 
-    const userName =  document.querySelector("#name");
-    const userEmail =  document.querySelector("#email");
+    const userName = document.querySelector("#name");
+    const userEmail = document.querySelector("#email");
     const userRole = document.querySelector("#role");
- 
+
     userName.value = user.name;
-    userEmail.value = user.email; 
+    userEmail.value = user.email;
     userRole.value = user.role;
-  }
-  else if(event.target.classList.contains("delete_btn")){
-    const userId = event.target.dataset.id;     
+  } else if (event.target.classList.contains("delete_btn")) {
+    const userId = event.target.dataset.id;
     deleteUser(userId);
   }
 });
 
-function deleteUser(userId) {
-  usersArray = usersArray.filter((user) => user.id !== +userId); 
-  saveUsersInfo(usersArray);
-  usersArray = [];
-  parseUsers(usersArray);
-}
-
-modalContent[1].addEventListener('submit', (event) => {
+modalContent[1].addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const userId = event.target.dataset.id; 
+  const userId = event.target.dataset.id;
+  const user = usersArray.find((user) => user.id == userId);
+  const newInfo = getNewInfo();
 
-  const user = usersArray.find((user) => user.id == userId); 
-
-  const userName = document.querySelector("#name");
-  const userEmail = document.querySelector("#email");  /// тут повтор
-  const userRole = document.querySelector("#role");
-  console.log(userName, userEmail, userRole);
-
-  user.name = userName.value;
-  user.email = userEmail.value;
-  user.role = userRole.value;
-
-  changeUserInfo(user, userName, userEmail, userRole);
+  changeUserInfo(user, newInfo);
 });
-
 
 modalContent[1].addEventListener("click", (event) => {
   if (event.target.classList.contains("return_btn")) {
     modal[1].style.display = "none";
-    modalContent[1].innerHTML = '';
+    modalContent[1].innerHTML = "";
   }
 });
 
-function changeUserInfo(user, userName, userEmail, userRole) {
-  user.name = userName.value;
-  user.email = userEmail.value;
-  user.role = userRole.value;
-
-  saveUsersInfo(usersArray);
-  usersArray = [];
-  parseUsers(usersArray);
-}
-
 parseUsers(usersArray);
-// localStorage.clear();

@@ -21,6 +21,10 @@ $main_font_family: Montserrat;
   box-sizing: border-box;
 }
 
+body{
+  background-color: #d4ddf3;
+}
+
 .container {
   max-width: 1128px;
   margin: auto;
@@ -28,27 +32,83 @@ $main_font_family: Montserrat;
 
 .header {
   width: 100%;
-  background-color: blueviolet;
+  background-color: #465779;
   min-height: 50px;
+  display: flex; 
+  justify-content: center;
 }
 
 .header_wrapper{
   display: flex;
   column-gap: 30px;
   align-items: center;
+  justify-content: space-between;
   height: 100%;
+  width: 100%;
+
+  h1{
+    @include main_text_style(32px, 600, #fff);
+  }
+
+  input{
+    min-height: 30px;
+    padding: 5px;
+    border-radius: 3px;
+    border:none;
+  }
 }
+
+.search_input {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+  border: 1px solid #fff;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.search_button {
+  min-height: 30px;
+  min-width: 30px;
+  border: none;
+  border-radius: 3px;
+  background-color: #fff;
+  background-image: url(../img/search_icon.svg);
+  background-size: contain;
+}
+
+input:focus {
+  border: none;
+  outline: none;
+}
+
+input:focus::placeholder {
+  opacity: 0;
+}
+
+input::placeholder {
+  @include main_text_style();
+}
+
 .add_btn{
   border: none;
   border-radius: 3px;
-  background-color: aquamarine;
+  background-color: #7a9bb2;
+  padding: 5px;
+  @include main_text_style(16px, 400, #fff);
 }
+
+.add_btn:hover{
+ background-color:  #99b3c6;
+}
+
 .users{
   display: grid;
   grid-template-columns: repeat(auto-fill, 350px);
-  gap: 20px;
+  justify-content: space-between;
+  row-gap: 15px;
   align-items: center;
-  margin-top: 20px;
+  padding-top: 20px;
 }
 
 .user_card{
@@ -59,9 +119,11 @@ $main_font_family: Montserrat;
   display: flex;
   flex-direction: column;
   row-gap: 20px;
-
 }
 
+.hide{
+  display: none;
+}
 .user_info{
   display: flex;
   justify-content: space-between;
@@ -145,8 +207,32 @@ background-image: url(../img/delete_icon.svg);
   }
 
   select{
-border-radius: 3px;
+  border-radius: 3px;
     min-height: 25px;
     @include main_text_style();
   }
+}
+
+.admin_card{
+border: 3px solid #010e6b;
+background-color: #bec5ff;
+
+}
+
+.regular_card{
+border: 3px solid #609e7c;
+background-color: #bbf6d5;
+
+}
+
+.guest_card{
+border: 3px dashed grey;
+background-color: rgb(228, 228, 228);
+}
+
+.delete_btn:hover{
+  background-color: rgb(254, 49, 49);
+}
+.change_btn:hover{
+  background-color: rgb(118, 164, 249);
 }
