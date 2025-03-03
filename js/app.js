@@ -137,8 +137,9 @@ function changeUserInfo(user, valuesArray) {
 }
 
 function getNewInfo() {
+  const name = document.querySelector("#name").value;
   return [
-    document.querySelector("#name").value,
+    name.replace(name[0], name[0].toUpperCase()),
     document.querySelector("#email").value,
     document.querySelector("#role").value,
   ];
@@ -268,3 +269,4 @@ modalContent[1].addEventListener("click", (event) => {
 });
 
 parseUsers(usersArray);
+
