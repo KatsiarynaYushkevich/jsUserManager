@@ -13,11 +13,12 @@ class User {
     this.role = "role";
     this.container = document.querySelector(".users");
     this.icon = "";
+    this.class = "";
   }
 
   renderRow() {
     this.container.innerHTML += `
-        <div class='user_card ${this.getRoleClass()}' >
+        <div class='user_card ${this.class}' >
          <div class='user_info'>
            <img src='${this.icon}'>
           <div class='user_text'>
@@ -33,10 +34,6 @@ class User {
         </div>
         `;
   }
-
-  getRoleClass() {
-    return ''; 
-  }
 }
 
 class AdminUser extends User {
@@ -44,12 +41,8 @@ class AdminUser extends User {
     super(id, name, email);
     this.role = "admin";
     this.icon = "../img/admin_icon.svg";
+    this.class = 'admin_card';
   }
-
-  getRoleClass() {
-    return 'admin_card'; 
-  }
-  removeUser(userId) {}
 }
 
 class RegularUser extends User {
@@ -59,20 +52,7 @@ class RegularUser extends User {
     this.postsNumber = 0;
     this.password = "password";
     this.icon = "../img/user_icon.svg";
-  }
-
-  createPost(postInfo) {
-    this.postsNumber += 1;
-  }
-
-  changePassword(newPassword) {
-    this.password !== newPassword
-      ? (this.password = newPassword)
-      : console.log("новый и старый пароли совпадают");
-  }
-
-  getRoleClass() {
-    return 'regular_card'; 
+    this.class = 'regular_card';
   }
 }
 
@@ -81,10 +61,7 @@ class GuestUser extends User {
     super(id, name, email);
     this.role = "guest";
     this.icon = "../img/guest_icon.svg";
-  }
-
-  getRoleClass() {
-    return 'guest_card';
+    this.class = 'guest_card';
   }
 }
 
