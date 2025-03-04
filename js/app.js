@@ -12,7 +12,6 @@ class User {
     this.email = email;
     this.role = "role";
     this.container = document.querySelector(".users");
-
     this.icon = "";
   }
 
@@ -120,7 +119,7 @@ function createUser(valuesArray) {
       newUser = new RegularUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
       break;
   }
-  addNewUser.bind(this)(newUser);
+  addNewUser(newUser);
 }
 
 function addNewUser(newUser) {
@@ -133,7 +132,7 @@ function changeUserInfo(user, valuesArray) {
   user.email = valuesArray[1];
   user.role = valuesArray[2];
 
-  updateUsers.bind(this)();
+  updateUsers();
 }
 
 function getNewInfo() {
@@ -147,7 +146,7 @@ function getNewInfo() {
 
 function deleteUser(userId) {
   usersArray = usersArray.filter((user) => user.id !== +userId);
-  updateUsers.bind(this)();
+  updateUsers();
 }
 
 function updateUsers() {
