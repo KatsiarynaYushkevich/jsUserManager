@@ -90,7 +90,6 @@ class User {
         } else if (event.target.classList.contains("delete_btn")) {
           const userId = event.target.dataset.id;
           this.deleteUser(userId);
-          console.log(usersArray);
         }
       });
   }
@@ -156,7 +155,6 @@ class User {
   deleteUser(userId) {
     usersArray = usersArray.filter((user) => user.id !== +userId); 
     this.updateUsers();
-    console.log('delete', usersArray);
 }
   
   updateUsers() {
