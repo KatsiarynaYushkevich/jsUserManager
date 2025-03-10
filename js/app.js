@@ -1,6 +1,5 @@
-let usersArray = [];
-
 class User {
+  static usersArray = [];
   constructor(id, name, email) {
     this.id = id;
     this.name = name;
@@ -14,69 +13,16 @@ class User {
     this.searchInput = document.querySelector("#search");
     this.addBtn = document.querySelector(".add_btn");
 
-    this.modalContent[0].addEventListener("click", (event) => {
-      if (event.target.classList.contains("return_btn")) {
-        this.modal[0].style.display = "none";
-        this.modalContent[0].innerHTML = "";
-      }
-    });
-
-    this.modalContent[0].addEventListener("submit", (event) => {
-      if (event.target.classList.contains("add_user_form")) {
-        event.preventDefault();
-        const userInfo = this.getNewInfo();
-        this.createUser(userInfo);
-      }
-      event.target.reset();
-    });
-    
-    this.addBtn.addEventListener("click", (event) => {
-      this.showModal(0);
-    });
-    
-    this.modalContent[1].addEventListener("submit", (event) => {
-      event.preventDefault();
-      const userId = event.target.dataset.id;
-      const user = usersArray.find((user) => user.id == userId);
-      const newInfo = this.getNewInfo();
-    
-      this.changeUserInfo(user, newInfo);
-    });
-    
-    this.modalContent[1].addEventListener("click", (event) => {
-      if (event.target.classList.contains("return_btn")) {
-        this.modal[1].style.display = "none";
-        this.modalContent[1].innerHTML = "";
-      }
-    });
-
-    this.searchInput.oninput = function () {
-      const input = this.value.trim();
-      const results = document.querySelectorAll("#name");
-      if (input) {
-        results.forEach((result) => {
-          const userCard = result.parentNode.parentNode.parentNode;
-          (result.innerText.search(RegExp(input,'gi')) == -1) ? userCard.classList.add("hide") : userCard.classList.remove("hide");
-          }
-        );
-      } else {
-        results.forEach((result) => {
-          const userCard = result.parentNode.parentNode.parentNode;
-          userCard.classList.remove("hide");
-        });
-      }
-    };
   }
 
   init(){
-    this.parseUsers(usersArray);
+    this.parseUsers();
     this.container.addEventListener("click", (event) => {
         if (event.target.classList.contains("change_btn")) {
+          const userId = event.target.dataset.id;
           this.showModal(1);
       
-          const userId = event.target.dataset.id;
-          const user = usersArray.find((user) => user.id == userId);
-      
+          const user = User.usersArray.find((user) => user.id == userId);
           document.querySelector(".add_user_form").dataset.id = userId;
       
           const userName = document.querySelector("#name");
@@ -92,6 +38,59 @@ class User {
           this.deleteUser(userId);
         }
       });
+
+      this.modalContent[0].addEventListener("click", (event) => {
+        if (event.target.classList.contains("return_btn")) {
+          this.modal[0].style.display = "none";
+          this.modalContent[0].innerHTML = "";
+        }
+      });
+  
+      this.modalContent[0].addEventListener("submit", (event) => {
+        if (event.target.classList.contains("add_user_form")) {
+          event.preventDefault();
+          const userInfo = this.getNewInfo();
+          this.createUser(userInfo);
+        }
+        event.target.reset();
+      });
+      
+      this.addBtn.addEventListener("click", (event) => {
+        this.showModal(0);
+      });
+      
+      this.modalContent[1].addEventListener("submit", (event) => {
+        event.preventDefault();
+        const userId = event.target.dataset.id;
+        const user =User.usersArray.find((user) => user.id == userId);
+        const newInfo = this.getNewInfo();
+      
+        this.changeUserInfo(user, newInfo);
+      });
+      
+      this.modalContent[1].addEventListener("click", (event) => {
+        if (event.target.classList.contains("return_btn")) {
+          this.modal[1].style.display = "none";
+          this.modalContent[1].innerHTML = "";
+        }
+      });
+  
+      this.searchInput.oninput = function () {
+        const input = this.value.trim();
+        const results = document.querySelectorAll("#name");
+        if (input) {
+          results.forEach((result) => {
+            const userCard = result.parentNode.parentNode.parentNode;
+            (result.innerText.search(RegExp(input,'gi')) == -1) ? userCard.classList.add("hide") : userCard.classList.remove("hide");
+            }
+          );
+        } else {
+          results.forEach((result) => {
+            const userCard = result.parentNode.parentNode.parentNode;
+            userCard.classList.remove("hide");
+          });
+        }
+      };
   }
 
   renderRow() {
@@ -106,8 +105,8 @@ class User {
           </div>
          </div>
          <div class='buttons'>
-          <button data-id='${usersArray.length + 1}' class='change_btn'></button>
-          <button data-id='${usersArray.length + 1}' class='delete_btn'></button>
+          <button data-id='${User.usersArray.length + 1}' class='change_btn'></button>
+          <button data-id='${User.usersArray.length + 1}' class='delete_btn'></button>
          </div>
         </div>
         `;
@@ -118,13 +117,13 @@ class User {
     if((valuesArray[0] && valuesArray[1]) !== '') {
     switch (valuesArray[2]) {
       case "admin":
-        newUser = new AdminUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+        newUser = new AdminUser(User.usersArray.length + 1, valuesArray[0], valuesArray[1]);
         break;
       case "guest":
-        newUser = new GuestUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+        newUser = new GuestUser(User.usersArray.length + 1, valuesArray[0], valuesArray[1]);
         break;
       case "user":
-        newUser = new RegularUser(usersArray.length + 1, valuesArray[0], valuesArray[1]);
+        newUser = new RegularUser(User.usersArray.length + 1, valuesArray[0], valuesArray[1]);
         break;
     }
     this.addNewUser(newUser)
@@ -132,7 +131,7 @@ class User {
   }
   
   addNewUser(newUser) {
-    usersArray.push(newUser);
+  User.usersArray.push(newUser);
     this.updateUsers();
   }
 
@@ -153,24 +152,24 @@ class User {
   }
   
   deleteUser(userId) {
-    usersArray = usersArray.filter((user) => user.id !== +userId); 
+  User.usersArray =User.usersArray.filter((user) => user.id !== +userId); 
     this.updateUsers();
 }
   
   updateUsers() {
-    this.saveUsersInfo(usersArray);
-    usersArray = [];
-    this.parseUsers(usersArray);
+    this.saveUsersInfo();
+  User.usersArray = [];
+    this.parseUsers();
   }
   
-  saveUsersInfo(usersArray) {
+  saveUsersInfo() {
     localStorage.clear();
-    usersArray.forEach((user) => {
+  User.usersArray.forEach((user) => {
       localStorage.setItem(user.id, JSON.stringify(user));
     });
   }
   
-  parseUsers(usersArray) {
+  parseUsers() {
     this.container.innerHTML = ``;
     for (let i = 0; i <= localStorage.length; i++) {
       const user = JSON.parse(localStorage.getItem(i + 1));
@@ -178,19 +177,19 @@ class User {
         let userInstance;
         switch (user.role) {
           case "admin":
-            userInstance = new AdminUser(usersArray.length + 1, user.name, user.email, user.role);
+            userInstance = new AdminUser(User.usersArray.length + 1, user.name, user.email, user.role);
             userInstance.renderRow();
-            usersArray.push(userInstance);
+          User.usersArray.push(userInstance);
             break;
           case "guest":
-            userInstance = new GuestUser(usersArray.length + 1, user.name, user.email, user.role);
+            userInstance = new GuestUser(User.usersArray.length + 1, user.name, user.email, user.role);
             userInstance.renderRow();
-            usersArray.push(userInstance);
+          User.usersArray.push(userInstance);
             break;
           case "user":
-            userInstance = new RegularUser(usersArray.length + 1, user.name, user.email, user.role);
+            userInstance = new RegularUser(User.usersArray.length + 1, user.name, user.email, user.role);
             userInstance.renderRow();
-            usersArray.push(userInstance);
+            User.usersArray.push(userInstance);
             break;
         }
       }
@@ -249,6 +248,7 @@ class GuestUser extends User {
   }
 }
 
-const userController = new User(1, 'a', 'a@a');
+const userController = new User(1, 'userController', 'a@a');
 userController.init();
-// localStorage.clear();
+
+
